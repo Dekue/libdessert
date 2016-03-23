@@ -1,8 +1,6 @@
-diff --git a/libcli.c b/libcli.c
-index ea673e5..dcebf7a 100644
---- a/libcli.c
-+++ b/libcli.c
-@@ -1098,7 +1098,7 @@ static int pass_matches(char *pass, char *try)
+--- libcli.c
++++ libclip.c
+@@ -1149,7 +1149,7 @@
      if ((des = !strncasecmp(pass, DES_PREFIX, sizeof(DES_PREFIX)-1)))
          pass += sizeof(DES_PREFIX)-1;
  

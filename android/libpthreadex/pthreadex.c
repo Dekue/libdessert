@@ -19,13 +19,12 @@
 /* Adapted to Android from GLIBC 2.11.1 by Ramin Baradari (C) 2010 */   
    
 #include <errno.h>
-
 #include "pthreadex.h"
 
 /* Check whether rwlock prefers readers.   */
 #define PTHREAD_RWLOCK_PREFER_READER_P(rwlock) ((rwlock)->__flags == 0)
 
-int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) {
+int pthread_rwlock_ported_rdlock(pthread_rwlock_ported_t *rwlock) {
     int result = 0;
 
     /* Make sure we are along.  */
@@ -74,7 +73,7 @@ int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) {
     return result;
 }
 
-int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) {
+int pthread_rwlock_ported_wrlock(pthread_rwlock_ported_t *rwlock) {
     int result = 0;
 
     /* Make sure we are along.  */
@@ -116,7 +115,7 @@ int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) {
     return result;
 }
 
-int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) {
+int pthread_rwlock_ported_unlock(pthread_rwlock_ported_t *rwlock) {
     pthread_mutex_lock(&rwlock->__lock_mutex);
 	
     if (rwlock->__writer_thread != 0)

@@ -10,7 +10,7 @@ use warnings;
 my $ndk_home = "";              # e.g. ~/android-ndk-r3
 my $ndk_host = "";              # e.g. linux-x86
 my $ndk_platform = "android-21"; # e.g. android-4
-my $ndk_gcc_version = "4.9.0";  # e.g. 4.4.0
+my $ndk_gcc_version = "4.9";  # e.g. 4.4.0
 my $toolchain_dir = "";         #
 
 # get from enviroment
