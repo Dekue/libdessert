@@ -9,8 +9,8 @@ use warnings;
 # default values here
 my $ndk_home = "";              # e.g. ~/android-ndk-r3
 my $ndk_host = "";              # e.g. linux-x86
-my $ndk_platform = "android-4"; # e.g. android-4
-my $ndk_gcc_version = "4.4.3";  # e.g. 4.4.0
+my $ndk_platform = "android-21"; # e.g. android-4
+my $ndk_gcc_version = "4.9.0";  # e.g. 4.4.0
 my $toolchain_dir = "";         #
 
 # get from enviroment
@@ -59,6 +59,8 @@ if ($ndk_home =~ /-r3/i) {
 } elsif ($ndk_home =~ /-r5/i) {
     $platform_dir = "${ndk_home}/platforms/${ndk_platform}";
 } elsif ($ndk_home =~ /-r6/i) {
+    $platform_dir = "${ndk_home}/platforms/${ndk_platform}";
+} elsif ($ndk_home =~ /-r11/i) {
     $platform_dir = "${ndk_home}/platforms/${ndk_platform}";
 }
 
