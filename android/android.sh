@@ -1,19 +1,20 @@
 #!/bin/bash
 
+# check if git is installed
+type -P git &>/dev/null || { echo "You need to have \"git\" installed, but it is not.  Aborting."; exit 0; }
+
 # important configuration variables, check these if something went wrong
-SVN_LIBDESSERT=https://svn.mi.fu-berlin.de/des-testbed/Software/DES-SERT/libdessert/trunk
-SVN_IP6=https://svn.mi.fu-berlin.de/des-testbed/Software/DES-SERT/libdessert/trunk/android/netinet
-SVN_LIBREGEX=https://svn.mi.fu-berlin.de/des-testbed/Software/DES-SERT/libdessert/trunk/android/libregex/
-SVN_LIBPTHREADEX=https://svn.mi.fu-berlin.de/des-testbed/Software/DES-SERT/libdessert/trunk/android/libpthreadex/
-SVN_LIBCLIPATCH=https://svn.mi.fu-berlin.de/des-testbed/Software/DES-SERT/libdessert/trunk/android/libcli-patch/
+GIT_LIBDESSERT=https://github.com/Dekue/libdessert
+GIT_LIBCLIPATCH="https://github.com/Dekue/libdessert android/libcli-patch/"
 
 # the android platform (e.g. android-3, android-4, android-5 ...)
 ANDROID_PLATFORM=android-3
 
 # android-ndk
-NDK_LOCATION=http://dl.google.com/android/ndk
-NDK_FILE=android-ndk-r6-linux-x86.tar.bz2
-#NDK_FILE=android-ndk-r5b-linux-x86.tar.bz2
+NDK_LOCATION=http://dl.google.com/android/repository
+#####NDK_LOCATION=http://dl.google.com/android/ndk
+NDK_FILE=android-ndk-r11b-linux-x86_64.zip
+#####NDK_FILE=android-ndk-r9d-linux-x86.tar.bz2
 
 # libpcap
 LIBPCAP_LOCATION=http://www.tcpdump.org/release/
@@ -21,9 +22,9 @@ LIBPCAP_FILE=libpcap-1.1.1.tar.gz
 
 # uthash
 UTHASH_LOCATION=http://downloads.sourceforge.net/uthash/
-UTHASH_FILE=uthash-1.9.4.tar.bz2
+UTHASH_FILE=uthash-1.9.7.tar.bz2
 
-# libcli IMPORTANT: This is a git repository location...you need git to fetch those files.
+# libcli
 GIT_LIBCLI=https://github.com/dparrish/libcli
 
 
@@ -32,7 +33,8 @@ GIT_LIBCLI=https://github.com/dparrish/libcli
 # more important variables...DO NOT CHANGE  #
 #############################################
 INSTALL_DIR=$1
-NDK_DIR=${NDK_FILE%"-linux-x86.tar.bz2"}
+#####NDK_DIR=${NDK_FILE%"-linux-x86.tar.bz2"}
+NDK_DIR=${NDK_FILE%"-linux-x86_64.zip"}
 LIBPCAP_DIR=${LIBPCAP_FILE%".tar.gz"}
 UTHASH_DIR=${UTHASH_FILE%".tar.bz2"}
 
@@ -49,9 +51,7 @@ then
 	exit 0
 fi
 
-type -P git &>/dev/null || echo "You need to have \"git\" installed, but it is not.  Aborting."
-
-export DESSERT_LIB=$INSTALL_DIR"/dessert-lib"
+export DESSERT_LIB=$INSTALL_DIR"/libdessert"
 
 lchr=`expr substr $NDK_LOCATION ${#NDK_LOCATION} 1`
 if [ ! "$lchr" == "/" ]
@@ -82,39 +82,33 @@ fi
 # switch to installation directory
 cd $INSTALL_DIR
 
-# cleanup old files
+# cleanup old folders, keep downloaded files
 echo "Cleaning up old files (from previous installations)..."
-rm -rf libdessert bin libcli $NDK_FILE $UTHASH_FILE $LIBPCAP_FILE
+######rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^bz2] android-toolchain $LIBPCAP_FILE
 
 # Create necessary subdirectories
-echo "Creating subdirectories..."
+echo "Creating bin subdirectory"
 mkdir bin
-mkdir -p dessert-lib/{include,lib}
 
 # fetch ndk from configured location
-echo "Downloading NDK..."
-wget -nc -q $NDK_LOCATION$NDK_FILE
 if [ ! -e "$NDK_FILE" ]
 then
-	echo "Failed to download Android NDK. Aborting!"
-	exit 0
+	echo "Downloading NDK... (794MB)" #405mb for 9d
+	wget -nc -q $NDK_LOCATION$NDK_FILE
+	if [ ! -e "$NDK_FILE" ]
+	then
+		echo "Failed to download Android NDK. Aborting!"
+		exit 0
+	fi
 fi
 
 # fetch needed files from repository
 echo "Checking out current libdessert from repository..."
-svn co -q $SVN_LIBDESSERT
-if [ -d "trunk" ]
-then
-	echo "Renaming trunk/ to libdessert/..."
-	mv trunk libdessert
-else
-	echo "Something went wrong while fetching libdessert from the repository...aborting."
-	exit 0
-fi
+git clone -q $GIT_LIBDESSERT
 
 # install android-ndk and toolchain
 echo "Installing android-ndk..."
-tar xvjf $NDK_FILE &> /dev/null
+#####unzip $NDK_FILE &> /dev/null #delete to save a lot of time if already installed correctly
 cd $NDK_DIR"/build/tools"
 export ANDROID_NDK_ROOT=$INSTALL_DIR"/"$NDK_DIR
 export ANDROID_NDK_HOME=$INSTALL_DIR"/"$NDK_DIR
@@ -138,27 +132,20 @@ echo "Adding bin directory to path..."
 export PATH=$INSTALL_DIR/bin:${PATH}
 
 # installing uthash
-echo "Installing uthash headers..."
-wget -nc -q $UTHASH_LOCATION$UTHASH_FILE
 if [ ! -e "$UTHASH_FILE" ]
 then
-	echo "Failed to download UTHASH. Aborting!"
-	exit 0
+	echo "Downloading UTHASH..."
+	wget -nc -q $UTHASH_LOCATION$UTHASH_FILE
+	if [ ! -e "$UTHASH_FILE" ]
+	then
+		echo "Failed to download UTHASH. Aborting!"
+		exit 0
+	fi
 fi
+echo "Installing uthash headers..."
 tar xvjf $UTHASH_FILE &> /dev/null
 cd $UTHASH_DIR"/src"
-cp *.h $INSTALL_DIR"/dessert-lib/include"
-cd $INSTALL_DIR
-
-# installing netinet headers
-echo "Installing netinet/ip6.h..."
-cd dessert-lib/include
-svn co $SVN_IP6
-if [ ! -d "netinet" ]
-then
-	echo "Failed to downloat netinet/ip6.h. Aborting."
-	exit 0
-fi
+cp *.h $INSTALL_DIR"/libdessert/include"
 cd $INSTALL_DIR
 
 # setting android-gcc as standard compiler
@@ -166,35 +153,23 @@ export CC="android-gcc"
 
 # installing libregex
 echo "Installing libregex..."
-svn co $SVN_LIBREGEX
-if [ ! -d "libregex" ]
-then
-	echo "Failed to download libregex. Aborting."
-	exit 0
-fi
-cd libregex 
-make CC="android-gcc" DESTDIR="$INSTALL_DIR" PREFIX="/dessert-lib" clean all install &> build.log
+cd libdessert/android/libregex
+make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/libdessert" clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "dessert-lib/lib/libregex.a" ]
+if [ ! -e "libdessert/android/libregex/libregex.a" ]
 then
-	echo "Failed to built libregex. See \"dessert-lib/libregex/build.log\"!"
+	echo "Failed to built libregex. See \"libdessert/android/libregex/build.log\"!"
 	exit 0
 fi
 
 # installing libpthreadex
 echo "Installing libpthreadex..."
-svn co $SVN_LIBPTHREADEX
-if [ ! -d "libpthreadex" ]
-then
-	echo "Failed to download libpthreadex. Aborting!"
-	exit 0
-fi
-cd libpthreadex
-make CC="android-gcc" DESTDIR="$INSTALL_DIR" PREFIX="/dessert-lib" clean all install &> build.log
+cd libdessert/android/libpthreadex
+make &> build.log #CC="android-gcc"  clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "dessert-lib/lib/libpthreadex.a" ]
+if [ ! -e "libdessert/android/libthreadex/libpthreadex.a" ]
 then 
-	echo "Failed to build libpthreadex. See \"libpthreadex/build.log\""
+	echo "Failed to build libpthreadex. See \"libdessert/android/libpthreadex/build.log\""
 	exit 0
 fi
 
@@ -207,13 +182,13 @@ then
 	exit 0
 fi
 echo "Patching libcli..."
-svn co $SVN_LIBCLIPATCH
+git clone $GIT_LIBCLIPATCH
 cp libcli-patch/libcli.patch libcli
 cd libcli
 patch < libcli.patch
-make CC="android-gcc" CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/dessert-lib/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/dessert-lib" clean libcli.so install &> build.log
+make CC="android-gcc" CFLAGS="-I$INSTALL_DIR/libdessert/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/libdessert/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/libdessert" clean libcli.so install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "dessert-lib/lib/libcli.so" ]
+if [ ! -e "libdessert/lib/libcli.so" ]
 then
 	echo "Failed to build libcli. See \"libcli/build.log\""
 	exit 0
@@ -229,11 +204,11 @@ then
 fi
 tar xvzf $LIBPCAP_FILE &> /dev/null
 cd $LIBPCAP_DIR
-./configure CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/dessert-lib" --host=arm-none-linux --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/libdessert" --host=arm-none-linux --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 make &> build.log
 make install
 cd $INSTALL_DIR
-if [ ! -e "dessert-lib/lib/libpcap.a" ]
+if [ ! -e "libdessert/lib/libpcap.a" ]
 then
 	echo "Failed to build libpcap. See \"libpcap/build.log\""
 	exit 0
@@ -243,12 +218,12 @@ fi
 echo "Building libdessert..."
 cd libdessert
 sh autogen.sh
-./configure CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/dessert-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/dessert-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
 make install
 cd $INSTALL_DIR
-if [ ! -e "dessert-lib/lib/libdessert.a" ]
+if [ ! -e "libdessert/lib/libdessert.a" ]
 then
 	echo "Failed to build libdessert. See \"libdessert/build.log\"."
 	exit 0
@@ -262,7 +237,7 @@ rm -rf libcli libcli-patch libdessert libpcap-1.1.1 libpthreadex libregex uthash
 
 # Building archive
 echo "Building archive..."
-tar cvzf libdessert_android.tar.gz dessert-lib &> /dev/null
+tar cvzf libdessert_android.tar.gz libdessert &> /dev/null
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
@@ -273,7 +248,7 @@ echo "The library has been tar'ed to the file libdessert_android.tar.gz."
 echo "=================================================================="
 echo "As last step you have to set the following environment variables:"
 echo "  export ANDROID_TOOLCHAIN=$ANDROID_TOOLCHAIN"
-echo "  export DESSERT_LIB=$INSTALL_DIR/dessert-lib"
+echo "  export DESSERT_LIB=$INSTALL_DIR/libdessert"
 echo "  export ANDROID_NDK_HOME=$INSTALL_DIR/$NDK_DIR"
 echo "  export PATH=\$PATH:$INSTALL_DIR/bin"
 echo "=================================================================="

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # ugly hack to get libtools major version
-LIBTOOL_MAJOR_VERSION=`libtool --version | head -n 1 | cut -d " " -f 4 | cut -c1`
+LIBTOOL_MAJOR_VERSION=`libtoolize --version | head -n 1 | cut -d " " -f 4 | cut -c1`
 
 M4_PATH="m4"
 
