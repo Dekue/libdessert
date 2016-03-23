@@ -5,16 +5,13 @@ type -P git &>/dev/null || { echo "You need to have \"git\" installed, but it is
 
 # important configuration variables, check these if something went wrong
 GIT_LIBDESSERT=https://github.com/Dekue/libdessert
-GIT_LIBCLIPATCH="https://github.com/Dekue/libdessert android/libcli-patch/"
 
 # the android platform (e.g. android-3, android-4, android-5 ...)
-ANDROID_PLATFORM=android-3
+ANDROID_PLATFORM=android-21
 
 # android-ndk
 NDK_LOCATION=http://dl.google.com/android/repository
-#####NDK_LOCATION=http://dl.google.com/android/ndk
 NDK_FILE=android-ndk-r11b-linux-x86_64.zip
-#####NDK_FILE=android-ndk-r9d-linux-x86.tar.bz2
 
 # libpcap
 LIBPCAP_LOCATION=http://www.tcpdump.org/release/
@@ -33,7 +30,6 @@ GIT_LIBCLI=https://github.com/dparrish/libcli
 # more important variables...DO NOT CHANGE  #
 #############################################
 INSTALL_DIR=$1
-#####NDK_DIR=${NDK_FILE%"-linux-x86.tar.bz2"}
 NDK_DIR=${NDK_FILE%"-linux-x86_64.zip"}
 LIBPCAP_DIR=${LIBPCAP_FILE%".tar.gz"}
 UTHASH_DIR=${UTHASH_FILE%".tar.bz2"}
@@ -85,6 +81,7 @@ cd $INSTALL_DIR
 # cleanup old folders, keep downloaded files
 echo "Cleaning up old files (from previous installations)..."
 ######rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^bz2] android-toolchain $LIBPCAP_FILE
+rm -rf libcli ######
 
 # Create necessary subdirectories
 echo "Creating bin subdirectory"
@@ -107,7 +104,7 @@ echo "Checking out current libdessert from repository..."
 git clone -q $GIT_LIBDESSERT
 
 # install android-ndk and toolchain
-echo "Installing android-ndk..."
+echo "Installing Android NDK..."
 #####unzip $NDK_FILE &> /dev/null #delete to save a lot of time if already installed correctly
 cd $NDK_DIR"/build/tools"
 export ANDROID_NDK_ROOT=$INSTALL_DIR"/"$NDK_DIR
@@ -142,7 +139,7 @@ then
 		exit 0
 	fi
 fi
-echo "Installing uthash headers..."
+echo "Installing UTHASH headers..."
 tar xvjf $UTHASH_FILE &> /dev/null
 cd $UTHASH_DIR"/src"
 cp *.h $INSTALL_DIR"/libdessert/include"
@@ -167,8 +164,8 @@ echo "Installing libpthreadex..."
 cd libdessert/android/libpthreadex
 make &> build.log #CC="android-gcc"  clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "libdessert/android/libthreadex/libpthreadex.a" ]
-then 
+if [ ! -e "libdessert/android/libpthreadex/libpthreadex.a" ]
+then
 	echo "Failed to build libpthreadex. See \"libdessert/android/libpthreadex/build.log\""
 	exit 0
 fi
@@ -182,11 +179,12 @@ then
 	exit 0
 fi
 echo "Patching libcli..."
-git clone $GIT_LIBCLIPATCH
-cp libcli-patch/libcli.patch libcli
+cp libdessert/android/libcli-patch/libcli.patch libcli
 cd libcli
-patch < libcli.patch
-make CC="android-gcc" CFLAGS="-I$INSTALL_DIR/libdessert/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/libdessert/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/libdessert" clean libcli.so install &> build.log
+patch -s < libcli.patch
+rm -f libcli.patch
+
+make CC=$CC CFLAGS="-I$INSTALL_DIR/libdessert/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/libdessert/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/libdessert" clean libcli.so install &> build.log
 cd $INSTALL_DIR
 if [ ! -e "libdessert/lib/libcli.so" ]
 then
@@ -195,13 +193,18 @@ then
 fi
 
 # installing libpcap
-echo "Installing libpcap..."
-wget -nc -q $LIBPCAP_LOCATION$LIBPCAP_FILE
-if [ ! -e "$LIBPCAP_FILE" ]
-then 
-	echo "Failed to download libpcap. Aborting!"
-	exit 0
+echo "Downloading libpcap..."
+
+if [ ! -e "$LIBCAP_FILE" ]
+then
+	wget -nc -q $LIBPCAP_LOCATION$LIBPCAP_FILE
+	if [ ! -e "$LIBPCAP_FILE" ]
+	then
+		echo "Failed to download libpcap. Aborting!"
+		exit 0
+	fi
 fi
+echo "Installing libpcap..."
 tar xvzf $LIBPCAP_FILE &> /dev/null
 cd $LIBPCAP_DIR
 ./configure CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/libdessert" --host=arm-none-linux --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
@@ -213,7 +216,7 @@ then
 	echo "Failed to build libpcap. See \"libpcap/build.log\""
 	exit 0
 fi
-
+exit 0 #####
 # building libdessert
 echo "Building libdessert..."
 cd libdessert
