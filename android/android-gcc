@@ -7,11 +7,11 @@ use warnings;
 #
 
 # default values here
-my $ndk_home = "";              # e.g. ~/android-ndk-r3
-my $ndk_host = "";              # e.g. linux-x86
-my $ndk_platform = "android-21"; # e.g. android-4
-my $ndk_gcc_version = "4.9";  # e.g. 4.4.0
-my $toolchain_dir = "";         #
+my $ndk_home = "";               # e.g. ~/android-ndk-r3
+my $ndk_host = "";               # e.g. linux-x86
+my $ndk_platform = "android-21"; # e.g. android-21 for Android 5.0
+my $ndk_gcc_version = "4.9";     # e.g. 4.4.0
+my $toolchain_dir = "";          #
 
 # get from enviroment
 if ($ENV{"ANDROID_NDK_HOME"}) {
@@ -55,7 +55,7 @@ my $platform_dir = "";
 # Android NDK r3 - r4b
 if ($ndk_home =~ /-r3/i) {
     $platform_dir = "${ndk_home}/build/platforms/${ndk_platform}";
-# Android NDK r5
+# Android NDK r5+
 } elsif ($ndk_home =~ /-r5/i) {
     $platform_dir = "${ndk_home}/platforms/${ndk_platform}";
 } elsif ($ndk_home =~ /-r6/i) {
@@ -206,7 +206,7 @@ if ($flags{'doCompile'}) {
 }
 
 if ($flags{'doAssemble'}) {
-    #push(@args, "-nostdlib");                          # TODO: revert; libpcp can't be built w/o atexit()
+    push(@args, "-nostdlib");							# TODO can't build libpcap: atexit()
     push(@args, "-Wl,--no-undefined");
     push(@args, "-Wl,-z,noexecstack");
     push(@args, "-Wl,-rpath-link=${platform_dir}/arch-arm/usr/lib");
