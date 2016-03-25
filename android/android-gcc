@@ -206,7 +206,7 @@ if ($flags{'doCompile'}) {
 }
 
 if ($flags{'doAssemble'}) {
-    push(@args, "-nostdlib");
+    #push(@args, "-nostdlib");                          # TODO: revert; libpcp can't be built w/o atexit()
     push(@args, "-Wl,--no-undefined");
     push(@args, "-Wl,-z,noexecstack");
     push(@args, "-Wl,-rpath-link=${platform_dir}/arch-arm/usr/lib");
