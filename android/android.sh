@@ -42,7 +42,7 @@ UTHASH_FILE=v1.9.9.tar.gz
 GIT_LIBCLI=https://github.com/dparrish/libcli
 
 # zlib-check
-GIT_ZLIB_CHECK=https://github.com/FFMS/ffms2/blob/master/m4/check_zlib.m4
+GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib.m4
 
 
 #################################################
