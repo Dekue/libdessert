@@ -8,6 +8,10 @@ RM_FILES=false
 
 # Save a lot of time by disabling this if already installed correctly.
 UNZIP_NDK=false
+INSTALL_NDK=false
+
+# Save additional time by configuring silently.
+VERBOSITY=--silent
 
 
 #################################################
@@ -36,6 +40,9 @@ UTHASH_FILE=v1.9.9.tar.gz
 
 # libcli
 GIT_LIBCLI=https://github.com/dparrish/libcli
+
+# zlib-check
+GIT_ZLIB_CHECK=https://github.com/FFMS/ffms2/blob/master/m4/check_zlib.m4
 
 
 #################################################
@@ -131,7 +138,10 @@ fi
 cd $NDK_DIR"/build/tools"
 export ANDROID_NDK_ROOT=$INSTALL_DIR"/"$NDK_DIR
 export ANDROID_NDK_HOME=$INSTALL_DIR"/"$NDK_DIR
-./make-standalone-toolchain.sh --ndk-dir=$INSTALL_DIR"/"$NDK_DIR --install-dir=$ANDROID_TOOLCHAIN
+if $INSTALL_NDK
+then
+	./make-standalone-toolchain.sh --ndk-dir=$INSTALL_DIR"/"$NDK_DIR --install-dir=$ANDROID_TOOLCHAIN
+fi
 export ANDROID_TOOLCHAIN=$ANDROID_TOOLCHAIN
 echo "Android Toolchain dir set to $ANDROID_TOOLCHAIN."
 if [ ! -d "$ANDROID_TOOLCHAIN" ]
@@ -229,8 +239,7 @@ echo "Installing libpcap..."
 tar xvzf $LIBPCAP_FILE &> /dev/null
 mv libpcap-$LIBPCAP_DIR $LIBPCAP_DIR
 cd $LIBPCAP_DIR
-
-./configure CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/libdessert" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure $VERBOSITY CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/libdessert" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 make &> build.log
 make install
 cd $INSTALL_DIR
@@ -239,21 +248,26 @@ then
 	echo "Failed to build libpcap. See \"libpcap/build.log\""
 	exit 0
 fi
-exit 0 ##############################
+
 # building libdessert
 echo "Building libdessert..."
-cd libdessert
+cd libdessert/m4
+wget -nc -q $GIT_ZLIB_CHECK
+cd ..
 sh autogen.sh
-CC="gcc-4.9" #change standard compiler back to gcc
 
-
+#CC="gcc-4.9" #change standard compiler back to gcc##################
 #--enable-android-build: checks pthreadex library - doesn't work right now
-./configure CFLAGS="-I$INSTALL_DIR/libdessert/include" LDFLAGS="-L$INSTALL_DIR/libdessert/lib" --host=arm-none-linux --without-net-snmp ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+
+./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+
+
+#./configure CFLAGS="-I$INSTALL_DIR/libdessert/include" LDFLAGS="-L$INSTALL_DIR/libdessert/lib" --host=arm-none-linux --without-net-snmp ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+
+exit 0 ##################
 
 ##### old FLAGS #####
-#CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__"
-#LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib"
-#--prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+#./configure CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/dessert-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/dessert-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 #####################
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
