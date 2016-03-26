@@ -207,7 +207,7 @@ if ($flags{'doCompile'}) {
 
 if ($flags{'doAssemble'}) {
     push(@args, "-nostdlib");							# TODO can't build libpcap: atexit()
-    push(@args, "-Wl,--no-undefined");
+    #push(@args, "-Wl,--no-undefined");					# quick and dirty fix for compiling libpcap
     push(@args, "-Wl,-z,noexecstack");
     push(@args, "-Wl,-rpath-link=${platform_dir}/arch-arm/usr/lib");
 }
