@@ -43,9 +43,12 @@ GIT_LIBCLI=https://github.com/dparrish/libcli
 
 # zlib-check
 GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib.m4
+<<<<<<< HEAD
 
 # iwlib.h stable v29
 GIT_IWLIB=https://raw.githubusercontent.com/CyanogenMod/android_external_wireless-tools/master/iwlib.h
+=======
+>>>>>>> bd0228120d67636f3fc8a428f97c8c93bd091f5a
 
 
 #################################################
