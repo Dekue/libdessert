@@ -42,7 +42,10 @@ UTHASH_FILE=v1.9.9.tar.gz
 GIT_LIBCLI=https://github.com/dparrish/libcli
 
 # zlib-check
-GIT_ZLIB_CHECK=https://github.com/FFMS/ffms2/blob/master/m4/check_zlib.m4
+GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib.m4
+
+# iwlib.h stable v29
+GIT_IWLIB=https://raw.githubusercontent.com/CyanogenMod/android_external_wireless-tools/master/iwlib.h
 
 
 #################################################
@@ -253,9 +256,11 @@ fi
 echo "Building libdessert..."
 cd libdessert/m4
 wget -nc -q $GIT_ZLIB_CHECK
+cd ../include
+wget -nc -q $GIT_IWLIB
 cd ..
 sh autogen.sh
-
+cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/libdessert/include
 #CC="gcc-4.9" #change standard compiler back to gcc##################
 #--enable-android-build: checks pthreadex library - doesn't work right now
 
