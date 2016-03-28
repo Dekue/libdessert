@@ -44,6 +44,9 @@ GIT_LIBCLI=https://github.com/dparrish/libcli
 # zlib-check
 GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib.m4
 
+# iwlib.h stable v29
+GIT_IWLIB=https://raw.githubusercontent.com/CyanogenMod/android_external_wireless-tools/master/iwlib.h
+
 
 #################################################
 # Path variables depending on archive names and #
@@ -151,7 +154,6 @@ then
 fi
 cd $INSTALL_DIR
 
-
 # copy android-gcc and android-strip to bin directory
 echo "Copying android-gcc wrapper to bin..."
 cp libdessert/android/android-* bin
@@ -192,15 +194,15 @@ then
 fi
 
 # installing libpthreadex
-echo "Installing libpthreadex..."
-cd libdessert/android/libpthreadex
-make &> build.log #CC="android-gcc"  clean all install &> build.log
-cd $INSTALL_DIR
-if [ ! -e "libdessert/android/libpthreadex/libpthreadex.a" ]
-then
-	echo "Failed to build libpthreadex. See \"libdessert/android/libpthreadex/build.log\""
-	exit 0
-fi
+#echo "Installing libpthreadex..."
+#cd libdessert/android/libpthreadex
+#make &> build.log #CC="android-gcc"  clean all install &> build.log
+#cd $INSTALL_DIR
+#if [ ! -e "libdessert/android/libpthreadex/libpthreadex.a" ]
+#then
+#	echo "Failed to build libpthreadex. See \"libdessert/android/libpthreadex/build.log#\""
+#	exit 0
+#fi
 
 # installing libcli
 echo "Downloading and installing libcli..."
@@ -253,26 +255,20 @@ fi
 echo "Building libdessert..."
 cd libdessert/m4
 wget -nc -q $GIT_ZLIB_CHECK
+cd ../include
+wget -nc -q $GIT_IWLIB
 cd ..
 sh autogen.sh
+cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/libdessert/include
 
-#CC="gcc-4.9" #change standard compiler back to gcc##################
-#--enable-android-build: checks pthreadex library - doesn't work right now
 
 ./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 
-
-#./configure CFLAGS="-I$INSTALL_DIR/libdessert/include" LDFLAGS="-L$INSTALL_DIR/libdessert/lib" --host=arm-none-linux --without-net-snmp ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
-
-exit 0 ##################
-
-##### old FLAGS #####
-#./configure CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/dessert-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/dessert-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
-#####################
+#cp $INSTALL_DIR/libdessert/android/libpthreadex/pthreadex.h $INSTALL_DIR/libdessert/include
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
-make install
-
+make install &> install.log
+exit 0 ######
 cd $INSTALL_DIR
 if [ ! -e "libdessert/lib/libdessert.a" ]
 then
@@ -284,8 +280,8 @@ fi
 echo "Cleaning up..."
 #rm *.tar.gz
 #rm -rf libcli libcli-patch libdessert libpcap-*[^gz] libpthreadex libregex uthash-*[^gz]
-echo "MARK"
-exit 0 #####
+
+
 # Building archive
 echo "Building archive..."
 tar cvzf libdessert_android.tar.gz libdessert &> /dev/null

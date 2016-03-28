@@ -240,7 +240,7 @@ dessertMeshifTable_container_load(netsnmp_container * container)
 	 * set the index(es) [and data, optionally] and insert into
 	 * the container.
 	 */
-    pthread_rwlock_rdlock(&dessert_cfglock);
+    pthread_rwlock_ported_rdlock(&dessert_cfglock);
 	DL_FOREACH(dessert_meshiflist_get(), meshif){
 
 		meshifIndex = ++count;
@@ -253,7 +253,7 @@ dessertMeshifTable_container_load(netsnmp_container * container)
 		rowreq_ctx = dessertMeshifTable_allocate_rowreq_ctx(NULL);
 		if (NULL == rowreq_ctx) {
 			snmp_log(LOG_ERR, "memory allocation failed\n");
-			pthread_rwlock_unlock(&dessert_cfglock);
+			pthread_rwlock_ported_unlock(&dessert_cfglock);
 			return MFD_RESOURCE_UNAVAILABLE;
 		}
 
@@ -310,7 +310,7 @@ dessertMeshifTable_container_load(netsnmp_container * container)
 		 */
 		CONTAINER_INSERT(container, rowreq_ctx);
 	}
-	pthread_rwlock_unlock(&dessert_cfglock);
+	pthread_rwlock_ported_unlock(&dessert_cfglock);
 
 
 

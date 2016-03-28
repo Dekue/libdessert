@@ -98,7 +98,6 @@
 
 #ifdef ANDROID
 #include <pthread.h>
-#include <pthreadex.h>
 #include <net/if_ether.h>
 #include <netinet/in6.h>
 #else
