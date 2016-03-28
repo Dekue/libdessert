@@ -260,7 +260,12 @@ wget -nc -q $GIT_IWLIB
 cd ..
 sh autogen.sh
 cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/libdessert/include
+<<<<<<< HEAD
 
+=======
+#CC="gcc-4.9" #change standard compiler back to gcc##################
+#--enable-android-build: checks pthreadex library - doesn't work right now
+>>>>>>> 949cb05c88907ede4d7131d8a48e78394a66181e
 
 ./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 
