@@ -189,7 +189,7 @@ dessert_frameid_t _dessert_newframeid() {
  ******************************************************************************/
 
 /** command "shutdown" */
-int _dessert_cli_cmd_shutdown(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_shutdown(struct cli_def* cli, const char* command, char* argv[], int argc) {
     cli_print(cli, "daemon will shut down now!");
     pthread_mutex_lock(&_dessert_exit_mutex);
     pthread_cond_broadcast(&_dessert_exit_do);
@@ -273,7 +273,7 @@ void _dessert_daemonize(void) {
     dessert_logcfg(0x0);
 }
 
-int _dessert_cli_cmd_showuptime(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_showuptime(struct cli_def* cli, const char* command, char* argv[], int argc) {
     uint32_t cur_ms = dessert_cur_ms();
     uint32_t started_ms = dessert_timeval2ms(&_dessert_started);
     uint32_t diff_ms = cur_ms - started_ms;

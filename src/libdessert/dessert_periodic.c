@@ -292,7 +292,7 @@ const char* dessert_ptr2name(void* ptr) {
     return (e == NULL ? NULL : e->name);
 }
 
-int _dessert_cmd_print_tasks(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cmd_print_tasks(struct cli_def* cli, const char* command, char* argv[], int argc) {
     pthread_mutex_lock(&_dessert_periodic_mutex);
     dessert_periodic_t* cur = _tasklist;
     uint16_t i = 0;

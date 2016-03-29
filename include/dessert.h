@@ -706,7 +706,7 @@ int dessert_meshif_add(const char* dev, uint8_t flags);
 int dessert_meshif_del(const char* dev);
 
 /* cli functions */
-int dessert_cli_cmd_addmeshif(struct cli_def* cli, char* command, char* argv[], int argc);
+int dessert_cli_cmd_addmeshif(struct cli_def* cli, const char* command, char* argv[], int argc);
 
 /* mesh callbacks */
 dessert_cb_result dessert_mesh_drop_ethernet(dessert_msg_t* msg, uint32_t len, dessert_msg_proc_t* proc, dessert_meshif_t* iface, dessert_frameid_t id);
@@ -758,8 +758,8 @@ int dessert_sysrxcb_add(dessert_sysrxcb_t* c, int prio);
 int dessert_sysrxcb_del(dessert_sysrxcb_t* c);
 
 /* cli functions */
-int dessert_cli_cmd_addsysif(struct cli_def* cli, char* command, char* argv[], int argc);
-int dessert_cli_cmd_addsysif_tun(struct cli_def* cli, char* command, char* argv[], int argc);
+int dessert_cli_cmd_addsysif(struct cli_def* cli, const char* command, char* argv[], int argc);
+int dessert_cli_cmd_addsysif_tun(struct cli_def* cli, const char* command, char* argv[], int argc);
 
 /* sys callbacks */
 dessert_cb_result dessert_sys_drop_ipv6(dessert_msg_t* msg, uint32_t len, dessert_msg_proc_t* proc, dessert_sysif_t* sysif, dessert_frameid_t id);
@@ -1322,8 +1322,8 @@ bool dessert_filter_rule_rm(char* mac, dessert_meshif_t* iface, enum dessert_fil
  * @{
  ******************************************************************************/
 
-int dessert_cli_cmd_ping(struct cli_def* cli, char* command, char* argv[], int argc);
-int dessert_cli_cmd_traceroute(struct cli_def* cli, char* command, char* argv[], int argc);
+int dessert_cli_cmd_ping(struct cli_def* cli, const char* command, char* argv[], int argc);
+int dessert_cli_cmd_traceroute(struct cli_def* cli, const char* command, char* argv[], int argc);
 dessert_cb_result dessert_mesh_ping(dessert_msg_t* msg, uint32_t len, dessert_msg_proc_t* proc, dessert_meshif_t* iface, dessert_frameid_t id);
 dessert_cb_result dessert_mesh_pong(dessert_msg_t* msg, uint32_t len, dessert_msg_proc_t* proc, dessert_meshif_t* iface, dessert_frameid_t id);
 dessert_cb_result dessert_mesh_trace(dessert_msg_t* msg, uint32_t len, dessert_msg_proc_t* proc, dessert_meshif_t* iface, dessert_frameid_t id);

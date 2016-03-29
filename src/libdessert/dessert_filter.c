@@ -168,7 +168,7 @@ fail:
 /**
  * CLI command to show all  filter rules
  */
-int _dessert_cli_cmd_show_rules(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_show_rules(struct cli_def* cli, const char* command, char* argv[], int argc) {
     pthread_rwlock_rdlock(&dessert_filterlock);
     mac_entry_t* elt = NULL;
     cli_print(cli, "\n[%s]", _whitelist_str);
@@ -196,7 +196,7 @@ enum { PARAM_LIST = 0, PARAM_MAC, PARAM_IFNAME, PARAM_P, PARAM_NUM };
 /**
  * CLI command to set default rule
  */
-int _dessert_cli_cmd_rule_default(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_rule_default(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 1) {
         cli_print(cli, "usage: rule default [accept|drop]");
         goto fail;
@@ -228,7 +228,7 @@ fail:
 /**
  * CLI command to add a filter rule
  */
-int _dessert_cli_cmd_rule_add(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_rule_add(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != PARAM_NUM) {
         cli_print(cli, "usage: rule add accept|drop] [MAC] [MESHIF] [PROBABILITY]");
         goto fail;
@@ -303,7 +303,7 @@ fail:
 /**
  * CLI command to remove a filter rule
  */
-int _dessert_cli_cmd_rule_rm(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_rule_rm(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != PARAM_NUM-1) {
         cli_print(cli, "usage: rule rm [accept|drop] [MAC] [MESHIF]");
         goto fail;

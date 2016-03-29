@@ -354,7 +354,7 @@ dessert_per_result_t _dessert_flush_log(void* data, struct timeval* scheduled, s
  *
  * @param argv[0] interval as string, "0" disables flushing
  */
-int _dessert_cli_log_interval(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_log_interval(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 1) {
         cli_print(cli, "usage %s INTERVAL\n", command);
         return CLI_ERROR;
@@ -390,7 +390,7 @@ int _dessert_cli_log_interval(struct cli_def* cli, char* command, char* argv[], 
 }
 
 /** command "logging file" */
-int _dessert_cli_logging_file(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_logging_file(struct cli_def* cli, const char* command, char* argv[], int argc) {
     FILE* newlogfd = NULL;
 #ifdef HAVE_LIBZ
     gzFile* newlogfdgz = NULL;
@@ -497,13 +497,13 @@ int _dessert_closeLogFile() {
 }
 
 /** command "no logging file" */
-int _dessert_cli_no_logging_file(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_no_logging_file(struct cli_def* cli, const char* command, char* argv[], int argc) {
     _dessert_closeLogFile();
     return CLI_OK;
 }
 
 /** command "logging ringbuffer" */
-int _dessert_cli_logging_ringbuffer(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_logging_ringbuffer(struct cli_def* cli, const char* command, char* argv[], int argc) {
     int newlen = -1;
 
     if(argc != 1 || (newlen = (int) strtol(argv[0], NULL, 10)) < 0) {
@@ -572,7 +572,7 @@ int _dessert_cli_logging_ringbuffer(struct cli_def* cli, char* command, char* ar
 }
 
 /** command "no logging ringbuffer" */
-int _dessert_cli_no_logging_ringbuffer(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_no_logging_ringbuffer(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(_dessert_logrbuf == NULL) {
         return CLI_OK;
     }
@@ -622,7 +622,7 @@ static int _dessert_loglevel_to_string(uint8_t level, char* buffer, uint32_t len
     return 0;
 }
 
-int _dessert_cli_cmd_set_loglevel(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_set_loglevel(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 1) {
         cli_print(cli, "usage %s [debug, info, notice, warning, error, critical, emergency]", command);
         return CLI_ERROR;
@@ -665,7 +665,7 @@ int _dessert_cli_cmd_set_loglevel(struct cli_def* cli, char* command, char* argv
     return CLI_OK;
 }
 
-int _dessert_cli_cmd_show_loglevel(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_show_loglevel(struct cli_def* cli, const char* command, char* argv[], int argc) {
     char buf[128];
     _dessert_loglevel_to_string(_dessert_loglevel, buf, sizeof(buf));
     cli_print(cli, "loglevel is set to \"%s\"", buf);
@@ -674,7 +674,7 @@ int _dessert_cli_cmd_show_loglevel(struct cli_def* cli, char* command, char* arg
 }
 
 /** command "show logging" */
-int _dessert_cli_cmd_logging(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_logging(struct cli_def* cli, const char* command, char* argv[], int argc) {
     pthread_rwlock_rdlock(&_dessert_logrbuf_len_lock);
     int i = 0;
     int max = _dessert_logrbuf_len - 1;

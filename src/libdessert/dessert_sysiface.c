@@ -546,7 +546,7 @@ static void* _dessert_sysif_init_thread(void* arg) {
  * @retval CLI_OK if TAP interface added
  * @retval CLI_ERROR on error
  */
-int dessert_cli_cmd_addsysif(struct cli_def* cli, char* command, char* argv[], int argc) {
+int dessert_cli_cmd_addsysif(struct cli_def* cli, const char* command, char* argv[], int argc) {
     char buf[255];
     int i;
 
@@ -588,7 +588,7 @@ int dessert_cli_cmd_addsysif(struct cli_def* cli, char* command, char* argv[], i
  * @retval CLI_OK if TUN interface added
  * @retval CLI_ERROR on error
  */
-int dessert_cli_cmd_addsysif_tun(struct cli_def* cli, char* command, char* argv[], int argc) {
+int dessert_cli_cmd_addsysif_tun(struct cli_def* cli, const char* command, char* argv[], int argc) {
     char buf[255];
     int i;
 

@@ -81,7 +81,7 @@ extern int         _dessert_status;
 
 dessert_frameid_t _dessert_newframeid(void);
 
-int _dessert_cli_cmd_shutdown(struct cli_def* cli, char* command, char* argv[], int argc);
+int _dessert_cli_cmd_shutdown(struct cli_def* cli, const char* command, char* argv[], int argc);
 
 //this should be in utlist.h in the future
 #ifndef DL_LENGTH
@@ -126,24 +126,24 @@ dessert_result _dessert_signals_init(void);
 
 dessert_per_result_t _dessert_flush_log(void* data, struct timeval* scheduled, struct timeval* interval);
 
-int _dessert_cli_cmd_set_loglevel(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_show_loglevel(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_logging(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_logging_file(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_no_logging_file(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_logging_ringbuffer(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_no_logging_ringbuffer(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_log_interval(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_show_rules(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_rule_add(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_rule_rm(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_rule_default(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_tokenbucket(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_show_tokenbucket(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_tokenbucket_policy(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_tokenbucket_max(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cmd_print_tasks(struct cli_def* cli, char* command, char* argv[], int argc);
-int _dessert_cli_cmd_showuptime(struct cli_def* cli, char* command, char* argv[], int argc);
+int _dessert_cli_cmd_set_loglevel(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_show_loglevel(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_logging(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_logging_file(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_no_logging_file(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_logging_ringbuffer(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_no_logging_ringbuffer(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_log_interval(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_show_rules(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_rule_add(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_rule_rm(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_rule_default(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_tokenbucket(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_show_tokenbucket(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_tokenbucket_policy(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_tokenbucket_max(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cmd_print_tasks(struct cli_def* cli, const char* command, char* argv[], int argc);
+int _dessert_cli_cmd_showuptime(struct cli_def* cli, const char* command, char* argv[], int argc);
 int _dessert_closeLogFile();
 
 /******************************************************************************

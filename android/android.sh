@@ -187,7 +187,7 @@ echo "Installing libregex..."
 cd libdessert/android/libregex
 make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/libdessert" clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "libdessert/android/libregex/libregex.a" ]
+if [ ! -e "libdessert/lib/libregex.a" ]
 then
 	echo "Failed to built libregex. See \"libdessert/android/libregex/build.log\"!"
 	exit 0

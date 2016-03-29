@@ -90,7 +90,7 @@ int dessert_msg_trace_initiate(dessert_msg_t* msg, uint8_t type, int mode) {
  * @retval CLI_OK if trace packet sent
  * @retval CLI_ERROR on error
  */
-int dessert_cli_cmd_traceroute(struct cli_def* cli, char* command, char* argv[], int argc) {
+int dessert_cli_cmd_traceroute(struct cli_def* cli, const char* command, char* argv[], int argc) {
     u_char ether_trace[ETHER_ADDR_LEN];
     dessert_msg_t* msg;
     dessert_ext_t* ext;

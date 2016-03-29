@@ -39,7 +39,7 @@ struct cli_def* _dessert_callbacks_cli;
  * @retval CLI_OK if ping sent
  * @retval CLI_ERROR on error
  */
-int dessert_cli_cmd_ping(struct cli_def* cli, char* command, char* argv[], int argc) {
+int dessert_cli_cmd_ping(struct cli_def* cli, const char* command, char* argv[], int argc) {
     u_char ether_trace[ETHER_ADDR_LEN];
     dessert_msg_t* msg;
     dessert_ext_t* ext;

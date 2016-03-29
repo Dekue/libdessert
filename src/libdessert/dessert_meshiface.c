@@ -1308,7 +1308,7 @@ static void _dessert_print_tb(struct cli_def* cli, uint8_t i, dessert_meshif_t* 
         );
 }
 
-int _dessert_cli_cmd_show_tokenbucket(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_show_tokenbucket(struct cli_def* cli, const char* command, char* argv[], int argc) {
     dessert_meshif_t* meshif = NULL;
     cli_print(cli, "%5s\t%10s\t%20s\t%20s\t%16s\t%13s\t%10s", "#", "meshif", "size [B]", "rate [B/s]", "policy", "queue length", "state");
     uint8_t i = 0;
@@ -1346,7 +1346,7 @@ static uint32_t eval_multiplier(char* c, struct cli_def* cli) {
 /** Set tocken bucket policy
  *
  */
-int _dessert_cli_cmd_tokenbucket_policy(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_tokenbucket_policy(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 2) {
         cli_print(cli, "USAGE: %s [MESHIF] [%s, %s, %s]", command, _dessert_policy2str[DESSERT_TB_DROP], _dessert_policy2str[DESSERT_TB_QUEUE_ORDERED], _dessert_policy2str[DESSERT_TB_QUEUE_UNORDERED]);
         return CLI_ERROR;
@@ -1383,7 +1383,7 @@ int _dessert_cli_cmd_tokenbucket_policy(struct cli_def* cli, char* command, char
 /** Set tocken bucket policy
  *
  */
-int _dessert_cli_cmd_tokenbucket_max(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_tokenbucket_max(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 2) {
         cli_print(cli, "USAGE: %s [MESHIF] [MAX_LEN]", command);
         return CLI_ERROR;
@@ -1414,7 +1414,7 @@ int _dessert_cli_cmd_tokenbucket_max(struct cli_def* cli, char* command, char* a
 /** Activate, modify, or deactive token bucket
  *
  */
-int _dessert_cli_cmd_tokenbucket(struct cli_def* cli, char* command, char* argv[], int argc) {
+int _dessert_cli_cmd_tokenbucket(struct cli_def* cli, const char* command, char* argv[], int argc) {
     enum { PARAM_MESHIF=0, PARAM_SIZE, PARAM_RATE, NUM_PARAMS};
 
     if(argc != NUM_PARAMS) {
@@ -1512,7 +1512,7 @@ fail:
  * @retval CLI_OK if interface added and in up state
  * @retval CLI_ERROR on error
  */
-int dessert_cli_cmd_addmeshif(struct cli_def* cli, char* command, char* argv[], int argc) {
+int dessert_cli_cmd_addmeshif(struct cli_def* cli, const char* command, char* argv[], int argc) {
     uint8_t BUF_SIZE = 255;
     char buf[BUF_SIZE];
     int i;

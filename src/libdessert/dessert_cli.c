@@ -59,17 +59,17 @@ static uint16_t _cli_port = 4519; // should be default port number
 
 /* internal functions forward declarations*/
 static void* _dessert_cli_accept_thread(void* arg);
-static int _dessert_cli_cmd_showmeshifs(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_showmonifs(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_showsysif(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_showmondb(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_dessertinfo(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_setport(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_cmd_pid(struct cli_def* cli, char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_showmeshifs(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_showmonifs(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_showsysif(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_showmondb(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_dessertinfo(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_setport(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_cmd_pid(struct cli_def* cli, const char* command, char* argv[], int argc);
 static void _dessert_cli_cmd_showmeshifs_print_helper(struct cli_def* cli, dessert_meshif_t* meshif);
 #ifndef ANDROID
-static int _dessert_cli_monitoring_start(struct cli_def* cli, char* command, char* argv[], int argc);
-static int _dessert_cli_monitor_conf(struct cli_def* cli, char* command, char* argv[], int argc);
+static int _dessert_cli_monitoring_start(struct cli_def* cli, const char* command, char* argv[], int argc);
+static int _dessert_cli_monitor_conf(struct cli_def* cli, const char* command, char* argv[], int argc);
 #endif
 /******************************************************************************
  *
@@ -531,7 +531,7 @@ int _dessert_cli_init() {
  *
  ******************************************************************************/
 
-static int _dessert_cli_cmd_setport(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_setport(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(_dessert_cli_running == 1) {
         cli_print(dessert_cli, "CLI is already running!");
         return CLI_ERROR;
@@ -540,7 +540,7 @@ static int _dessert_cli_cmd_setport(struct cli_def* cli, char* command, char* ar
     return (dessert_set_cli_port((uint16_t) atoi(argv[0])) == DESSERT_ERR ? CLI_ERROR : CLI_OK);
 }
 
-static int _dessert_cli_cmd_pid(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_pid(struct cli_def* cli, const char* command, char* argv[], int argc) {
     if(argc != 1) {
         cli_print(cli, "usage: pid /path/to/file.pid");
         return CLI_ERROR;
@@ -559,14 +559,14 @@ static int _dessert_cli_cmd_pid(struct cli_def* cli, char* command, char* argv[]
 * @param[in] timer_range The second parameter defines how long collectes RSSI-Values are guilty
 */
 #ifndef ANDROID
-static int _dessert_cli_monitor_conf(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_monitor_conf(struct cli_def* cli, const char* command, char* argv[], int argc) {
     extern int MAX_AGE;
     extern int MAX_RSSI_VALS;
     cli_print(cli, "max_values=%d, max_age=%d", MAX_RSSI_VALS, MAX_AGE);
     return CLI_OK;
 }
 
-static int _dessert_cli_monitoring_start(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_monitoring_start(struct cli_def* cli, const char* command, char* argv[], int argc) {
     int max_rssi_vals = 0;
     int max_age = 0;
     int maintenance_interval = 0;
@@ -603,7 +603,7 @@ static int _dessert_cli_monitoring_start(struct cli_def* cli, char* command, cha
 }
 #endif
 /**command "show meshifs" */
-static int _dessert_cli_cmd_showmeshifs(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_showmeshifs(struct cli_def* cli, const char* command, char* argv[], int argc) {
     dessert_meshif_t* meshif = dessert_meshiflist_get();
 
     if(meshif == NULL) {
@@ -620,7 +620,7 @@ static int _dessert_cli_cmd_showmeshifs(struct cli_def* cli, char* command, char
 }
 
 /**command "show monifs" */
-static int _dessert_cli_cmd_showmonifs(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_showmonifs(struct cli_def* cli, const char* command, char* argv[], int argc) {
     dessert_meshif_t* meshif;
     MESHIFLIST_ITERATOR_START(meshif)
 
@@ -633,13 +633,13 @@ static int _dessert_cli_cmd_showmonifs(struct cli_def* cli, char* command, char*
 }
 
 /**command "show mondb" */
-static int _dessert_cli_cmd_showmondb(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_showmondb(struct cli_def* cli, const char* command, char* argv[], int argc) {
     dessert_print_monitored_database();
     return CLI_OK;
 }
 
 /** command "show sysif" */
-static int _dessert_cli_cmd_showsysif(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_showsysif(struct cli_def* cli, const char* command, char* argv[], int argc) {
     dessert_sysif_t* sysif = _dessert_sysif;
 
     if(sysif == NULL) {
@@ -658,7 +658,7 @@ static int _dessert_cli_cmd_showsysif(struct cli_def* cli, char* command, char* 
 }
 
 /** command "show dessert-info" */
-static int _dessert_cli_cmd_dessertinfo(struct cli_def* cli, char* command, char* argv[], int argc) {
+static int _dessert_cli_cmd_dessertinfo(struct cli_def* cli, const char* command, char* argv[], int argc) {
     cli_print(cli, "\nprotocol running:   %s v %d", dessert_proto, dessert_ver);
     cli_print(cli, "libdessert version: %s", VERSION);
     cli_print(
