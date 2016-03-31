@@ -3,16 +3,16 @@
 #################################################
 # preferences / debug                           #
 #################################################
-# Remove previously installed files and folders?
-RM_FILES=false
+# keep files before and after installation
+$KEEP_FILES=false
 
-# Save a lot of time by disabling this if already installed correctly.
-UNZIP_NDK=false
-INSTALL_NDK=false
+# Save a lot of time by disabling this if already installed correctly
+# and you have to compile numerous times.
+UNZIP_NDK=true
+INSTALL_NDK=true
 
 # Save additional time by configuring silently.
 VERBOSITY=--silent
-
 
 #################################################
 # dependencies                                  #
@@ -46,7 +46,6 @@ GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib
 
 # iwlib.h stable v29
 GIT_IWLIB=https://raw.githubusercontent.com/CyanogenMod/android_external_wireless-tools/master/iwlib.h
-
 
 #################################################
 # Path variables depending on archive names and #
@@ -105,12 +104,11 @@ fi
 cd $INSTALL_DIR
 
 # cleanup old folders, keep downloaded files
-if $RM_FILES
+if !$KEEP_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^gz] android-toolchain
+	rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^gz] android-toolchain libpcap-*[^gz]
 fi
-rm -rf libcli libpcap-*[^gz]
 
 # create bin subdirectory
 echo "Creating bin subdirectory..."
@@ -129,13 +127,13 @@ then
 fi
 
 # fetch needed files from repository
-echo "Checking out current libdessert from repository..."
+echo "Cloning current libdessert from repository..."
 git clone -q $GIT_LIBDESSERT
 
 # install android-ndk and toolchain
 if $UNZIP_NDK
 then
-	echo "Installing Android NDK..."
+	echo "Installing Android NDK... (this may take a few minutes)"
 	unzip $NDK_FILE &> /dev/null
 fi
 cd $NDK_DIR"/build/tools"
@@ -192,17 +190,6 @@ then
 	echo "Failed to built libregex. See \"libdessert/android/libregex/build.log\"!"
 	exit 0
 fi
-
-# installing libpthreadex
-#echo "Installing libpthreadex..."
-#cd libdessert/android/libpthreadex
-#make &> build.log #CC="android-gcc"  clean all install &> build.log
-#cd $INSTALL_DIR
-#if [ ! -e "libdessert/android/libpthreadex/libpthreadex.a" ]
-#then
-#	echo "Failed to build libpthreadex. See \"libdessert/android/libpthreadex/build.log#\""
-#	exit 0
-#fi
 
 # installing libcli
 echo "Downloading and installing libcli..."
@@ -263,23 +250,23 @@ cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wire
 
 ./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 
-#cp $INSTALL_DIR/libdessert/android/libpthreadex/pthreadex.h $INSTALL_DIR/libdessert/include
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
 make install &> install.log
-exit 0 ######
+
 cd $INSTALL_DIR
 if [ ! -e "libdessert/lib/libdessert.a" ]
 then
-	echo "Failed to build libdessert. See \"libdessert/build.log\"."
+	echo "Failed to build libdessert. See \"libdessert/build.log\" and \"libdessert/install.log\"."
 	exit 0
 fi
 
 # cleanup
-echo "Cleaning up..."
-#rm *.tar.gz
-#rm -rf libcli libcli-patch libdessert libpcap-*[^gz] libpthreadex libregex uthash-*[^gz]
-
+if !$KEEP_FILES
+then
+	echo "Cleaning up..."
+	rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^gz] android-toolchain libpcap-*[^gz]
+fi
 
 # Building archive
 echo "Building archive..."
