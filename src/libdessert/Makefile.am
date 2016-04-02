@@ -26,7 +26,6 @@ if !ANDROID
     libdessert_la_SOURCES += dessert_monitor.c
 else
     AM_CPPFLAGS += -DANDROID
-    ## libdessert_la_LIBADD += pthreadex.a ## TODO: check why this is here
 endif
 
 libdessert_la_LDFLAGS = -version-number @LIBDESSERT_LIBRARY_VERSION@ -Wl,--no-undefined

@@ -157,15 +157,4 @@ AC_ARG_ENABLE(android-build,
 AC_SUBST(do_android_build)
 AM_CONDITIONAL([ANDROID], [test $do_android_build -eq 1])
 
-# Checks for special android library libpthreadex
-
-AS_IF([test $do_android_build -eq 1],
-   [AC_CHECK_HEADERS([pthreadex.h])
-    AC_SEARCH_LIBS([pthread_rwlock_unlock],
-        [pthreadex],
-        [],
-        [AC_MSG_ERROR([pthreadex could not be found, you need to manually build this special library])])
-   ]
-)
-
 AC_OUTPUT

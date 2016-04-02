@@ -3,13 +3,13 @@
 #################################################
 # preferences / debug                           #
 #################################################
-# keep files before and after installation
-$KEEP_FILES=false
+# remove files before installation (does not include downloaded files)
+RM_FILES=true
 
 # Save a lot of time by disabling this if already installed correctly
 # and you have to compile numerous times.
-UNZIP_NDK=true
-INSTALL_NDK=true
+UNZIP_NDK=false
+INSTALL_NDK=false
 
 # Save additional time by configuring silently.
 VERBOSITY=--silent
@@ -72,7 +72,7 @@ then
 	exit 0
 fi
 
-export DESSERT_LIB=$INSTALL_DIR"/libdessert"
+export DESSERT_LIB=$INSTALL_DIR"/d-lib"
 
 lchr=`expr substr $NDK_LOCATION ${#NDK_LOCATION} 1`
 if [ ! "$lchr" == "/" ]
@@ -104,15 +104,20 @@ fi
 cd $INSTALL_DIR
 
 # cleanup old folders, keep downloaded files
-if !$KEEP_FILES
+if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^gz] android-toolchain libpcap-*[^gz]
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz d-lib #####libdessert
+fi
+if $UNZIP_NDK && $INSTALL_NDK
+then
+	rm -rf android-ndk-*[^zip] android-toolchain
 fi
 
 # create bin subdirectory
-echo "Creating bin subdirectory..."
+echo "Creating subdirectories..."
 mkdir bin
+mkdir -p d-lib/{include,lib}
 
 # fetch ndk from configured location
 if [ ! -e "$NDK_FILE" ]
@@ -174,7 +179,7 @@ fi
 echo "Installing UTHASH headers..."
 tar xvzf $UTHASH_FILE &> /dev/null
 cd $UTHASH_DIR"/src"
-cp *.h $INSTALL_DIR"/libdessert/include"
+cp *.h $INSTALL_DIR"/d-lib/include"
 cd $INSTALL_DIR
 
 # setting android-gcc as standard compiler
@@ -183,11 +188,11 @@ export CC="android-gcc"
 # installing libregex
 echo "Installing libregex..."
 cd libdessert/android/libregex
-make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/libdessert" clean all install &> build.log
+make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/d-lib" clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "libdessert/lib/libregex.a" ]
+if [ ! -e "d-lib/lib/libregex.a" ]
 then
-	echo "Failed to built libregex. See \"libdessert/android/libregex/build.log\"!"
+	echo "Failed to built libregex. See \"d-lib/libregex/build.log\"!"
 	exit 0
 fi
 
@@ -205,9 +210,9 @@ cd libcli
 patch -s < libcli.patch
 rm -f libcli.patch
 
-make CC=$CC CFLAGS="-I$INSTALL_DIR/libdessert/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/libdessert/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/libdessert" clean libcli.so install &> build.log
+make CC=$CC CFLAGS="-I$INSTALL_DIR/d-lib/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/d-lib/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/d-lib" clean libcli.so install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "libdessert/lib/libcli.so" ]
+if [ ! -e "d-lib/lib/libcli.so" ]
 then
 	echo "Failed to build libcli. See \"libcli/build.log\""
 	exit 0
@@ -228,11 +233,11 @@ echo "Installing libpcap..."
 tar xvzf $LIBPCAP_FILE &> /dev/null
 mv libpcap-$LIBPCAP_DIR $LIBPCAP_DIR
 cd $LIBPCAP_DIR
-./configure $VERBOSITY CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/libdessert" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure $VERBOSITY CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/d-lib" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 make &> build.log
 make install
 cd $INSTALL_DIR
-if [ ! -e "libdessert/lib/libpcap.a" ]
+if [ ! -e "d-lib/lib/libpcap.a" ]
 then
 	echo "Failed to build libpcap. See \"libpcap/build.log\""
 	exit 0
@@ -242,35 +247,33 @@ fi
 echo "Building libdessert..."
 cd libdessert/m4
 wget -nc -q $GIT_ZLIB_CHECK
-cd ../include
+cd ../../d-lib/include
 wget -nc -q $GIT_IWLIB
-cd ..
+cd ../../libdessert
 sh autogen.sh
-cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/libdessert/include
+cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/d-lib/include
 
-./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/libdessert/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/libdessert/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/libdessert/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/d-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/d-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/d-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
 make install &> install.log
 
 cd $INSTALL_DIR
-if [ ! -e "libdessert/lib/libdessert.a" ]
+if [ ! -e "d-lib/lib/libdessert.a" ]
 then
-	echo "Failed to build libdessert. See \"libdessert/build.log\" and \"libdessert/install.log\"."
+	echo "Failed to build libdessert. See \"libdessert/build.log\", \"libdessert/install.log\" or \"libdessert/config.log\"."
 	exit 0
 fi
 
 # cleanup
-if !$KEEP_FILES
-then
-	echo "Cleaning up..."
-	rm -rf bin libdessert libcli android-ndk-*[^zip] uthash-*[^gz] android-toolchain libpcap-*[^gz]
-fi
+echo "Cleaning up..."
+#rm -rf libcli uthash-*[^gz] libpcap-*[^gz]
+rm -rf libcli libcli-patch libpcap-*[^gz] libregex uthash-*[^gz] #libdessert
 
 # Building archive
 echo "Building archive..."
-tar cvzf libdessert_android.tar.gz libdessert &> /dev/null
+tar cvzf libdessert_android.tar.gz d-lib &> /dev/null
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
