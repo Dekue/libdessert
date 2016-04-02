@@ -7,9 +7,9 @@
 RM_FILES=true
 
 # Save a lot of time by disabling this if already installed correctly
-# and you have to compile numerous times.
-UNZIP_NDK=false
-INSTALL_NDK=false
+# and you have to compile numerous times. Will still install if
+# essential directories are not present.
+RE_INSTALL_NDK=false
 
 # Save additional time by configuring silently.
 VERBOSITY=--silent
@@ -107,9 +107,13 @@ cd $INSTALL_DIR
 if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz d-lib #####libdessert
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz d-lib libdessert
 fi
-if $UNZIP_NDK && $INSTALL_NDK
+if [ ! -d "$NDK_DIR" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]
+then
+	RE_INSTALL_NDK=true
+fi
+if $RE_INSTALL_NDK
 then
 	rm -rf android-ndk-*[^zip] android-toolchain
 fi
@@ -136,7 +140,7 @@ echo "Cloning current libdessert from repository..."
 git clone -q $GIT_LIBDESSERT
 
 # install android-ndk and toolchain
-if $UNZIP_NDK
+if $RE_INSTALL_NDK
 then
 	echo "Installing Android NDK... (this may take a few minutes)"
 	unzip $NDK_FILE &> /dev/null
@@ -144,7 +148,7 @@ fi
 cd $NDK_DIR"/build/tools"
 export ANDROID_NDK_ROOT=$INSTALL_DIR"/"$NDK_DIR
 export ANDROID_NDK_HOME=$INSTALL_DIR"/"$NDK_DIR
-if $INSTALL_NDK
+if $RE_INSTALL_NDK
 then
 	./make-standalone-toolchain.sh --ndk-dir=$INSTALL_DIR"/"$NDK_DIR --install-dir=$ANDROID_TOOLCHAIN
 fi
@@ -268,8 +272,7 @@ fi
 
 # cleanup
 echo "Cleaning up..."
-#rm -rf libcli uthash-*[^gz] libpcap-*[^gz]
-rm -rf libcli libcli-patch libpcap-*[^gz] libregex uthash-*[^gz] #libdessert
+rm -rf libcli libcli-patch libpcap-*[^gz] libregex uthash-*[^gz] #libdessert bin
 
 # Building archive
 echo "Building archive..."
