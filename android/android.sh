@@ -72,7 +72,7 @@ then
 	exit 0
 fi
 
-export DESSERT_LIB=$INSTALL_DIR"/d-lib"
+export DESSERT_LIB=$INSTALL_DIR"/dessert-lib"
 
 lchr=`expr substr $NDK_LOCATION ${#NDK_LOCATION} 1`
 if [ ! "$lchr" == "/" ]
@@ -107,7 +107,7 @@ cd $INSTALL_DIR
 if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz d-lib libdessert
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib libdessert
 fi
 if [ ! -d "$NDK_DIR" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]
 then
@@ -121,7 +121,7 @@ fi
 # create bin subdirectory
 echo "Creating subdirectories..."
 mkdir bin
-mkdir -p d-lib/{include,lib}
+mkdir -p dessert-lib/{include,lib}
 
 # fetch ndk from configured location
 if [ ! -e "$NDK_FILE" ]
@@ -183,7 +183,7 @@ fi
 echo "Installing UTHASH headers..."
 tar xvzf $UTHASH_FILE &> /dev/null
 cd $UTHASH_DIR"/src"
-cp *.h $INSTALL_DIR"/d-lib/include"
+cp *.h $INSTALL_DIR"/dessert-lib/include"
 cd $INSTALL_DIR
 
 # setting android-gcc as standard compiler
@@ -192,11 +192,11 @@ export CC="android-gcc"
 # installing libregex
 echo "Installing libregex..."
 cd libdessert/android/libregex
-make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/d-lib" clean all install &> build.log
+make CC=$CC DESTDIR=$INSTALL_DIR PREFIX="/dessert-lib" clean all install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "d-lib/lib/libregex.a" ]
+if [ ! -e "dessert-lib/lib/libregex.a" ]
 then
-	echo "Failed to built libregex. See \"d-lib/libregex/build.log\"!"
+	echo "Failed to built libregex. See \"dessert-lib/libregex/build.log\"!"
 	exit 0
 fi
 
@@ -214,9 +214,9 @@ cd libcli
 patch -s < libcli.patch
 rm -f libcli.patch
 
-make CC=$CC CFLAGS="-I$INSTALL_DIR/d-lib/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/d-lib/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/d-lib" clean libcli.so install &> build.log
+make CC=$CC CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I. -DSTDC_HEADERS" LDFLAGS="-shared $INSTALL_DIR/dessert-lib/lib/libregex.a -Wl,-soname,libcli.so" LIBS="" DESTDIR="$INSTALL_DIR" PREFIX="/dessert-lib" clean libcli.so install &> build.log
 cd $INSTALL_DIR
-if [ ! -e "d-lib/lib/libcli.so" ]
+if [ ! -e "dessert-lib/lib/libcli.so" ]
 then
 	echo "Failed to build libcli. See \"libcli/build.log\""
 	exit 0
@@ -237,11 +237,11 @@ echo "Installing libpcap..."
 tar xvzf $LIBPCAP_FILE &> /dev/null
 mv libpcap-$LIBPCAP_DIR $LIBPCAP_DIR
 cd $LIBPCAP_DIR
-./configure $VERBOSITY CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/d-lib" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure $VERBOSITY CFLAGS="-Dlinux" --prefix=$INSTALL_DIR"/dessert-lib" --host=arm-none-linux-gnueabi --with-pcap=linux ac_cv_linux_vers=2 ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 make &> build.log
 make install
 cd $INSTALL_DIR
-if [ ! -e "d-lib/lib/libpcap.a" ]
+if [ ! -e "dessert-lib/lib/libpcap.a" ]
 then
 	echo "Failed to build libpcap. See \"libpcap/build.log\""
 	exit 0
@@ -251,20 +251,20 @@ fi
 echo "Building libdessert..."
 cd libdessert/m4
 wget -nc -q $GIT_ZLIB_CHECK
-cd ../../d-lib/include
+cd ../../dessert-lib/include
 wget -nc -q $GIT_IWLIB
 cd ../../libdessert
 sh autogen.sh
-cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/d-lib/include
+cp $ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/linux/wireless.h $INSTALL_DIR/dessert-lib/include
 
-./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/d-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/d-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/d-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
+./configure $VERBOSITY CFLAGS="-I$INSTALL_DIR/dessert-lib/include -I$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/include -D__linux__" LDFLAGS="-L$INSTALL_DIR/dessert-lib/lib -L$ANDROID_NDK_HOME/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib" --prefix=$INSTALL_DIR"/dessert-lib/" --host=arm-none-linux --without-net-snmp --enable-android-build ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes
 
 # setting the CPPFLAGS fixes a flaw in the configure script, where always the standard include "/usr/include" is appended to the compiler flags
 make CPPFLAGS="" &> build.log
 make install &> install.log
 
 cd $INSTALL_DIR
-if [ ! -e "d-lib/lib/libdessert.a" ]
+if [ ! -e "dessert-lib/lib/libdessert.a" ]
 then
 	echo "Failed to build libdessert. See \"libdessert/build.log\", \"libdessert/install.log\" or \"libdessert/config.log\"."
 	exit 0
@@ -276,7 +276,7 @@ rm -rf libcli libcli-patch libpcap-*[^gz] libregex uthash-*[^gz] #libdessert bin
 
 # Building archive
 echo "Building archive..."
-tar cvzf libdessert_android.tar.gz d-lib &> /dev/null
+tar cvzf libdessert_android.tar.gz dessert-lib &> /dev/null
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
