@@ -164,10 +164,10 @@ while (@input) {
 if (1) {
     # we always add defines and includes
     push(@args, "-I${platform_dir}/arch-arm/usr/include");
-    push(@args, "-D__ARM_ARCH_5__");
-    push(@args, "-D__ARM_ARCH_5T__");
-    push(@args, "-D__ARM_ARCH_5E__");
-    push(@args, "-D__ARM_ARCH_5TE__");
+    push(@args, "-D__ARM_ARCH_7__");
+    push(@args, "-D__ARM_ARCH_7A__");
+    push(@args, "-D__ARM_ARCH_7R__");
+    push(@args, "-D__ARM_ARCH_7M__");
     push(@args, "-DANDROID");
     push(@args, "-DNDEBUG");		# TEST
     #push(@args, "-D__linux__");		# yes or no?
@@ -184,7 +184,7 @@ if ($flags{'doCompile'}) {
     push(@args, "-fstack-protector");                   # ???
     push(@args, "-fno-short-enums");                    # ???
 
-    push(@args, "-march=armv5te");                      # ???
+    push(@args, "-march=armv7-a");                      # ???
     push(@args, "-mtune=xscale");                       # ???
     push(@args, "-msoft-float");                        # ???
 

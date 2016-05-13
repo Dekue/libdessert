@@ -9,8 +9,8 @@ use warnings;
 # default values here
 my $ndk_home = "";              # e.g. ~/android-ndk-r3
 my $ndk_host = "";              # e.g. linux-x86
-my $ndk_platform = "android-4"; # e.g. android-4
-my $ndk_gcc_version = "4.4.0";  # e.g. 4.4.0
+my $ndk_platform = "android-16"; # e.g. android-4
+my $ndk_gcc_version = "4.9";  # e.g. 4.4.0
 
 # get from enviroment
 if ($ENV{"ANDROID_NDK_HOME"}) {

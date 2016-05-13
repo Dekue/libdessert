@@ -24,7 +24,7 @@ type -P git &>/dev/null || { echo "You need to have \"git\" installed, but it is
 GIT_LIBDESSERT=https://github.com/Dekue/libdessert
 
 # Android API level (eg. android-21 = Android 5.0)
-ANDROID_PLATFORM=android-21
+ANDROID_PLATFORM=android-16
 
 # Android-NDK
 NDK_LOCATION=http://dl.google.com/android/repository
