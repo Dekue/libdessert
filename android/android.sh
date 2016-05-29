@@ -22,6 +22,7 @@ type -P git &>/dev/null || { echo "You need to have \"git\" installed, but it is
 
 # Important configuration variables, check these if something went wrong.
 GIT_LIBDESSERT=https://github.com/Dekue/libdessert
+GIT_DAEMONS=https://github.com/Dekue/des-routing-algorithms
 
 # Android API level (eg. android-21 = Android 5.0)
 ANDROID_PLATFORM=android-16
@@ -46,6 +47,9 @@ GIT_ZLIB_CHECK=https://raw.githubusercontent.com/FFMS/ffms2/master/m4/check_zlib
 
 # iwlib.h stable v29
 GIT_IWLIB=https://raw.githubusercontent.com/CyanogenMod/android_external_wireless-tools/master/iwlib.h
+
+#SE policies
+GIT_SE_P=https://github.com/xmikos/setools-android.git
 
 #################################################
 # Path variables depending on archive names and #
@@ -107,7 +111,7 @@ cd $INSTALL_DIR
 if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib libdessert
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib des-routing-algorithms libdessert setools-android setools
 fi
 if [ ! -d "$NDK_DIR" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]
 then
@@ -136,7 +140,7 @@ then
 fi
 
 # fetch needed files from repository
-echo "Cloning current libdessert from repository..."
+echo "Cloning libdessert from repository..."
 git clone -q $GIT_LIBDESSERT
 
 # install android-ndk and toolchain
@@ -150,7 +154,7 @@ export ANDROID_NDK_ROOT=$INSTALL_DIR"/"$NDK_DIR
 export ANDROID_NDK_HOME=$INSTALL_DIR"/"$NDK_DIR
 if $RE_INSTALL_NDK
 then
-	./make-standalone-toolchain.sh --ndk-dir=$INSTALL_DIR"/"$NDK_DIR --install-dir=$ANDROID_TOOLCHAIN
+	./make-standalone-toolchain.sh --ndk-dir=$ANDROID_NDK_HOME --install-dir=$ANDROID_TOOLCHAIN
 fi
 export ANDROID_TOOLCHAIN=$ANDROID_TOOLCHAIN
 echo "Android Toolchain dir set to $ANDROID_TOOLCHAIN."
@@ -270,13 +274,49 @@ then
 	exit 0
 fi
 
-# cleanup
-echo "Cleaning up..."
-rm -rf libcli libcli-patch libpcap-*[^gz] libregex uthash-*[^gz] #libdessert bin
-
-# Building archive
+# building archive
 echo "Building archive..."
 tar cvzf libdessert_android.tar.gz dessert-lib &> /dev/null
+
+# installing routing daemons
+echo "Downloading and installing routing daemons..."
+git clone $GIT_DAEMONS
+if [ ! -d "des-routing-algorithms" ]
+then
+	echo "Failed to create git repository for the daemons. Aborting."
+	exit 0
+fi
+#TODO: make daemons, make dynamic repo *.xml, archive them into APK-files.tar.gz
+
+# installing routing daemons
+echo "Downloading and installing SE policy tools..."
+git clone $GIT_SE_P
+if [ ! -d "setools-android" ]
+then
+	echo "Failed to create git repository for setools-android. Aborting."
+	exit 0
+fi
+echo "Patching setools..."
+mkdir setools
+cd setools-android
+rm jni/Application.mk
+cp $INSTALL_DIR/libdessert/android/setools-patch/setools.patch jni/Application.mk
+$ANDROID_NDK_HOME/ndk-build
+cp libs/armeabi-v7a/sepolicy-inject $INSTALL_DIR/setools
+cd ..
+cp libdessert/android/injector.sh setools
+
+# building archive: files really needed for the android APK
+mkdir dependencies
+cp dessert-lib/lib/libcli.so dependencies/libcli
+cp dessert-lib/lib/libpcap.so dependencies/libpcap
+cp dessert-lib/lib/libdessert.so dependencies/libdessert
+#TODO: libdessert-extra: ARM-v7a
+tar cvzf APK-files.tar.gz dependencies setools
+
+# cleanup
+echo "Cleaning up..."
+rm -rf libcli libcli-patch libpcap-* libregex uthash-* setools-android bin dependencies setools dessert-lib libdessert des-routing-daemons
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
