@@ -1,5 +1,5 @@
---- Application.mk	2016-05-29 20:42:43.111016000 +0200
-+++ Applicationv7.mk	2016-05-29 20:40:16.751016000 +0200
+--- Application.mk
++++ Applicationp.mk
 @@ -1,2 +1,2 @@
 -APP_ABI := armeabi-v7a arm64-v8a mips mips64 x86 x86_64
 +APP_ABI := armeabi-v7a
