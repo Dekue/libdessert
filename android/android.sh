@@ -111,7 +111,7 @@ cd $INSTALL_DIR
 if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib des-routing-algorithms libdessert setools-android setools
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib setools-android setools repo dependencies apk_files.* dessert-lib libdessert des-routing-algorithms
 fi
 if [ ! -d "$NDK_DIR" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]
 then
@@ -167,7 +167,7 @@ cd $INSTALL_DIR
 
 # copy android-gcc and android-strip to bin directory
 echo "Copying android-gcc wrapper to bin..."
-cp libdessert/android/android-* bin
+mv libdessert/android/android-* bin
 
 # add bin directory to path
 echo "Adding bin directory to path..."
@@ -187,7 +187,7 @@ fi
 echo "Installing UTHASH headers..."
 tar xvzf $UTHASH_FILE &> /dev/null
 cd $UTHASH_DIR"/src"
-cp *.h $INSTALL_DIR"/dessert-lib/include"
+mv *.h $INSTALL_DIR"/dessert-lib/include"
 cd $INSTALL_DIR
 
 # setting android-gcc as standard compiler
@@ -213,7 +213,7 @@ then
 	exit 0
 fi
 echo "Patching libcli..."
-cp libdessert/android/libcli-patch/libcli.patch libcli
+mv libdessert/android/libcli-patch/libcli.patch libcli
 cd libcli
 patch -s < libcli.patch
 rm -f libcli.patch
@@ -286,6 +286,11 @@ then
 	echo "Failed to create git repository for the daemons. Aborting."
 	exit 0
 fi
+cd des-routing-algorithms/des-batman/trunk
+make android
+cd ../../des-hello
+make
+cd ../..
 #TODO: make daemons, make dynamic repo *.xml, archive them into APK-files.tar.gz
 
 # installing routing daemons
@@ -297,39 +302,45 @@ then
 	exit 0
 fi
 echo "Patching setools..."
-mkdir setools
-cd setools-android
-rm jni/Application.mk
-cp $INSTALL_DIR/libdessert/android/setools-patch/setools.patch jni/Application.mk
-$ANDROID_NDK_HOME/ndk-build
-cp libs/armeabi-v7a/sepolicy-inject $INSTALL_DIR/setools
-cd ..
-cp libdessert/android/injector.sh setools
 
-# building archive: files really needed for the android APK
+#gather files needed for APK
+mkdir setools
+mv -f libdessert/android/setools-patch/setools.patch setools-android/jni/Application.mk
+$ANDROID_NDK_HOME/ndk-build -C setools-android
+mv setools-android/libs/armeabi-v7a/sepolicy-inject setools
+mv libdessert/android/injector.sh setools
+
 mkdir dependencies
-cp dessert-lib/lib/libcli.so dependencies/libcli
-cp dessert-lib/lib/libpcap.so dependencies/libpcap
-cp dessert-lib/lib/libdessert.so dependencies/libdessert
+mv dessert-lib/lib/libcli.so dependencies/libcli
+mv dessert-lib/lib/libpcap.so dependencies/libpcap
+mv dessert-lib/lib/libdessert.so dependencies/libdessert
 #TODO: libdessert-extra: ARM-v7a
-tar cvzf APK-files.tar.gz dependencies setools
+
+D_FIL=trunk/android.files
+D_ALG=des-routing-algorithms
+mkdir repo
+mv $D_ALG/des-batman/$D_FIL/des-batman-2.0.zip repo
+mv $D_ALG/des-hello/android.files/des-hello-2.0.zip repo
+
+# building archive: files really needed for the android APK: cli, pcap, dessert, setools, daemons
+tar cvzf APK-files.tar.gz dependencies setools repo
 
 # cleanup
 echo "Cleaning up..."
-rm -rf libcli libcli-patch libpcap-* libregex uthash-* setools-android bin dependencies setools dessert-lib libdessert des-routing-daemons
+rm -rf libcli libcli-patch libpcap-* libregex uthash-* setools-android bin dependencies setools dessert-lib repo libdessert des-routing-algorithms
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
 echo ""
 echo "PRESS A KEY TO CONTINUE..."
 read -n 1 -s
-echo "The library has been tar'ed to the file libdessert_android.tar.gz."
+echo "The files needed for the android manager app are included in apk_files.tar.gz."
+echo "The files needed for building own daemons are included in libdessert_android.tar.gz."
 echo "=================================================================="
-echo "As last step you have to set the following environment variables:"
+echo "You can compile your own daemons by setting following environment variables:"
 echo "  export ANDROID_TOOLCHAIN=$ANDROID_TOOLCHAIN"
-echo "  export DESSERT_LIB=$INSTALL_DIR/dessert-lib"
+echo "  export DESSERT_LIB=$INSTALL_DIR/libdessert"
 echo "  export ANDROID_NDK_HOME=$INSTALL_DIR/$NDK_DIR"
 echo "  export PATH=\$PATH:$INSTALL_DIR/bin"
 echo "=================================================================="
-echo "You can now do: make android from any dessert daemon source dir!"
 
