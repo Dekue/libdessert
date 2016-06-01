@@ -111,7 +111,7 @@ cd $INSTALL_DIR
 if $RM_FILES
 then
 	echo "Cleaning up old files (from previous installations)..."
-	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib setools-android setools repo dependencies apk_files.* dessert-lib libdessert des-routing-algorithms
+	rm -rf bin libcli uthash-*[^gz] libpcap-*[^gz] libdessert_android.tar.gz dessert-lib setools-android setools repo dependencies apk_files.* dessert-lib libdessert #des-routing-algorithms
 fi
 if [ ! -d "$NDK_DIR" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]
 then
@@ -311,11 +311,11 @@ mv setools-android/libs/armeabi-v7a/sepolicy-inject setools
 mv libdessert/android/injector.sh setools
 
 mkdir dependencies
-mv dessert-lib/lib/libcli.so dependencies/libcli
-mv dessert-lib/lib/libpcap.so dependencies/libpcap
-mv dessert-lib/lib/libdessert.so dependencies/libdessert
+cp dessert-lib/lib/libcli.so dependencies/libcli
+cp dessert-lib/lib/libpcap.so dependencies/libpcap
+cp dessert-lib/lib/libdessert.so dependencies/libdessert
 #TODO: libdessert-extra: ARM-v7a
-
+read -n 1 -s #####
 D_FIL=trunk/android.files
 D_ALG=des-routing-algorithms
 mkdir repo
@@ -323,11 +323,11 @@ mv $D_ALG/des-batman/$D_FIL/des-batman-2.0.zip repo
 mv $D_ALG/des-hello/android.files/des-hello-2.0.zip repo
 
 # building archive: files really needed for the android APK: cli, pcap, dessert, setools, daemons
-tar cvzf APK-files.tar.gz dependencies setools repo
+tar cvzf apk_files.tar.gz dependencies setools repo
 
 # cleanup
 echo "Cleaning up..."
-rm -rf libcli libcli-patch libpcap-* libregex uthash-* setools-android bin dependencies setools dessert-lib repo libdessert des-routing-algorithms
+rm -rf libcli libcli-patch libpcap-* libregex uthash-* setools-android bin dependencies setools dessert-lib repo libdessert #des-routing-algorithms
 
 echo ""
 echo "IMPORTANT: Check if any errors occured! If yes, you first need to manually fix them and restart this script."
@@ -343,4 +343,3 @@ echo "  export DESSERT_LIB=$INSTALL_DIR/libdessert"
 echo "  export ANDROID_NDK_HOME=$INSTALL_DIR/$NDK_DIR"
 echo "  export PATH=\$PATH:$INSTALL_DIR/bin"
 echo "=================================================================="
-
