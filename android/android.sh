@@ -288,6 +288,8 @@ then
 fi
 cd des-routing-algorithms/des-batman/trunk
 make android
+cd ../../des-olsr/trunk
+make android
 cd ../../des-hello
 make
 cd ../..
@@ -315,11 +317,12 @@ cp dessert-lib/lib/libcli.so dependencies/libcli
 cp dessert-lib/lib/libpcap.so dependencies/libpcap
 cp dessert-lib/lib/libdessert.so dependencies/libdessert
 #TODO: libdessert-extra: ARM-v7a
-read -n 1 -s #####
+
 D_FIL=trunk/android.files
 D_ALG=des-routing-algorithms
 mkdir repo
 mv $D_ALG/des-batman/$D_FIL/des-batman-2.0.zip repo
+mv $D_ALG/des-olsr/$D_FIL/des-olsr-2.0.zip repo
 mv $D_ALG/des-hello/android.files/des-hello-2.0.zip repo
 
 # building archive: files really needed for the android APK: cli, pcap, dessert, setools, daemons
