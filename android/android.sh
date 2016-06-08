@@ -323,6 +323,7 @@ D_ALG=des-routing-algorithms
 mkdir repo
 mv $D_ALG/des-batman/$D_FIL/des-batman-2.0.zip repo
 mv $D_ALG/des-olsr/$D_FIL/des-olsr-2.0.zip repo
+mv $D_ALG/des-ara/$D_FIL/des-ara-3.0.zip repo
 mv $D_ALG/des-hello/android.files/des-hello-2.0.zip repo
 
 # building archive: files really needed for the android APK: cli, pcap, dessert, setools, daemons
