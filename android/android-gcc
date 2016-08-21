@@ -9,9 +9,11 @@ use warnings;
 # default values here
 my $ndk_home = "";               # e.g. ~/android-ndk-r3
 my $ndk_host = "";               # e.g. linux-x86
-my $ndk_platform = "android-21"; # e.g. android-21 for Android 5.0
+my $ndk_platform = "android-16"; # e.g. android-21 for Android 5.0
 my $ndk_gcc_version = "4.9";     # e.g. 4.4.0
 my $toolchain_dir = "";          #
+
+
 
 # get from enviroment
 if ($ENV{"ANDROID_NDK_HOME"}) {
@@ -44,6 +46,14 @@ unless ($ENV{"DESSERT_LIB"}) {
 #        die "The host system (${uname}) is not supported";
 #    }
 #}
+
+# load include/linux/if_bonding.h into NDK for usage of current version of libpcap
+my @versplit = split /-/, $ndk_platform;
+my $android_api_version = $versplit[1];
+if ($android_api_version < 21) {
+    use File::Copy "cp";
+    cp('/usr/include/linux/if_bonding.h', $ndk_home.'/platforms/'.$ndk_platform.'/arch-arm/usr/include/linux/');
+}
 
 #if ($ENV{"ANDROID_NDK_GCC_VERSION"}) {
 #    $ndk_gcc_version = $ENV{"ANDROID_NDK_GCC_VERSION"};
