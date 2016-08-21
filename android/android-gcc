@@ -52,7 +52,7 @@ my @versplit = split /-/, $ndk_platform;
 my $android_api_version = $versplit[1];
 if ($android_api_version < 21) {
     use File::Copy "cp";
-    cp('/usr/include/linux/if_bonding.h', $ndk_home.'/platforms/'.$ndk_platform.'/arch-arm/usr/include/linux/');
+    cp($ndk_home.'/platforms/android-21/arch-arm/usr/include/linux/if_bonding.h', $ndk_home.'/platforms/'.$ndk_platform.'/arch-arm/usr/include/linux/');
 }
 
 #if ($ENV{"ANDROID_NDK_GCC_VERSION"}) {
